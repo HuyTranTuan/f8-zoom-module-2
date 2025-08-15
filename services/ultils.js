@@ -724,7 +724,7 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
                         const trendingTracks = await helper.getTrendingTracks();
                         const trendingArtists = await helper.getTrendingArtists();
                         contextMenu.classList.remove("active");
-                        showArtistDetailSection(artistID, trendingTracks, trendingArtists)
+                        showArtistDetailSection(artistID, trendingTracks.tracks, trendingArtists.artists)
                     } catch (error) {
                         toastSnackbar(error);
                     }
@@ -926,9 +926,10 @@ function showEditPlaylistDetailForm(playlist){
                 const artists = await helper.getArtists();
                 showMyPlaylists()
                 showPlaylistDetailSection(playlist.id, popularTracks?.tracks, artists?.artists);
+                toastSnackbar("Success!");
             }
         } catch (error) {
-            console.log(error)
+            toastSnackbar(error);
         }
     })
 
@@ -1562,6 +1563,11 @@ async function audioController(track, audio, isPlayed){
                             ${stateHolder._repeatState !== 0 ? `<span>${stateHolder._repeatState}</span>` : "" }`;
     })
     const playBtn = $(".control-btn.play-btn");
+    if(audio.paused){
+        playBtn.innerHTML = '<i class="fas fa-play"></i>'
+    } else {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>'
+    }
     playBtn.addEventListener("click", function(){
         if(audio.paused){
             audio.play();
