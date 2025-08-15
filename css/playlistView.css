@@ -1,0 +1,215 @@
+/* Library items */
+.library-item {
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+.library-item:hover {
+  background-color: var(--bg-tertiary);
+}
+.library-item.active {
+  background-color: var(--bg-hover);
+}
+.item-image {
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  overflow: hidden;
+}
+.item-icon {
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  overflow: hidden;
+  background: #bdc3c7;
+  background: -webkit-linear-gradient(to right, #2c3e50, #bdc3c7);
+  background: linear-gradient(to right, #2c3e50, #bdc3c7);
+}
+.item-info {
+  min-width: 0;
+}
+.item-title {
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.item-subtitle {
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-items: center;
+}
+
+/* compact-list */
+.library-item.compact-list {
+  display: flex;
+  padding: 5px;
+}
+.item-image.compact-list,
+.item-icon.compact-list {
+  width: 0px;
+  height: 0px;
+}
+.item-info.compact-list {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.item-title.compact-list {
+  font-size: 13px;
+  font-weight: 400;
+}
+.item-subtitle.compact-list {
+  font-size: 11px;
+}
+
+/* default-list */
+.library-item.default-list {
+  display: flex;
+}
+.item-image.default-list,
+.item-icon.default-list {
+  width: 48px;
+  height: 48px;
+}
+.item-icon.default-list {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.item-image.default-list img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.item-info.default-list {
+  flex: 1;
+}
+.item-title.default-list {
+  font-size: 16px;
+  font-weight: 400;
+}
+.item-subtitle.default-list {
+  font-size: 14px;
+}
+
+/* compact-grid */
+.library-item.compact-grid {
+  padding: 5px;
+  position: relative;
+}
+.item-image.compact-grid,
+.item-icon.compact-grid {
+  width: 100%;
+  aspect-ratio: 1;
+}
+.item-image.compact-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.item-icon.compact-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+}
+.item-info.compact-grid {
+  position: absolute;
+  background-color: var(--bg-hover);
+  top: 80px;
+  left: 10px;
+  z-index: 999;
+  padding: 5px;
+  border-radius: 5px;
+  max-width: 100px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: visibility, opacity, scale;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+  transform-origin: 50% 0%;
+}
+.library-item.compact-grid:hover .item-info.compact-grid {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
+}
+.item-title.compact-grid {
+  font-size: 13px;
+  font-weight: 400;
+}
+.item-subtitle.compact-grid {
+  font-size: 11px;
+}
+
+/* default-grid */
+.library-item.default-grid {
+  padding: 5px;
+  width: 85%;
+}
+.item-image.default-grid,
+.item-icon.default-grid {
+  width: 100%;
+  aspect-ratio: 1;
+  margin-bottom: 5px;
+}
+.item-image.default-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.item-icon.default-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+}
+.item-title.default-grid {
+  font-size: 12px;
+  font-weight: 400;
+}
+.item-subtitle.default-grid {
+  font-size: 9px;
+}
+
+.item-contextmenu {
+  position: absolute;
+  background-color: #282828;
+  padding: 5px;
+  top: 50%;
+  right: 0;
+  transform: translate(10px, 10%);
+  z-index: 100;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: visibility, opacity, scale;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+  transform-origin: 50% 0%;
+}
+.item-contextmenu.active {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
+}
+
+.item-contextmenu li {
+  padding: 5px;
+}
+.item-contextmenu li:hover {
+  background-color: #6e6e6e;
+}
