@@ -252,7 +252,7 @@ export function showUpdateUserProfile(){
         userImgInput.src = stateHolder._randomImg;
     }
 
-    userImgInput.addEventListener('change', () => {
+    userImgInput.addEventListener('change', async () => {
         if (userImgInput.files.length > 0) {
             const selectedFile = userImgInput.files[0];
             if (selectedFile) {
@@ -261,6 +261,16 @@ export function showUpdateUserProfile(){
                 const previewImg = userImgInput.parentElement.querySelector('img');
                 if (previewImg) previewImg.src = imgURL;
                 imgSource = selectedFile.name;
+                try {
+                    const formData = await new FormData();
+                    await formData.append(selectedFile)
+                    const result = await helper.uploadAvatarImg(formData, {token: stateHolder.token})
+                    userImgInput.src = result.file.url;
+                    getHeaderActions();
+                    toastSnackbar(result.message);
+                } catch (error) {
+                    toastSnackbar(error);
+                }
             }
         }
     });
@@ -350,6 +360,27 @@ export async function logout(){
     await getFooterActions();
 }
 
+function showPlaylistCards(playlists){
+    let cards = "";
+    playlists.forEach(playlist => {
+        cards += `<div class="playlist-card" data-playlist-id="${playlist.id}">
+                    <div class="playlist-card-cover">
+                        <img
+                            src="${playlist.image_url ? playlist.image_url : stateHolder._randomImg}"
+                            alt="${playlist.name}"
+                            class="playlist-card-cover-child"
+                        />
+                    </div>
+                    <div class="playlist-card-info">
+                        <h3 class="playlist-card-name">${playlist.name}</h3>
+                        <p class="playlist-card-username">${playlist.user_username}</p>
+                        <p class="playlist-card-description">${playlist.description}</p>
+                    </div>
+                </div>`
+    })
+    return cards;
+}
+
 export function showArtistCards(arrayArtists){
     let cards = '';
     for(let artist of arrayArtists){
@@ -374,7 +405,6 @@ export function showArtistCards(arrayArtists){
 export function showHitCards(arrayHits){
     let cards = '';
     for(let hit of arrayHits){
-
         const validImageTypes = ['jpeg', 'png', 'gif', 'bmp', 'webp', "jpg"];
         let imgExtension = getFileExtension(hit.image_url);
         
@@ -400,9 +430,11 @@ export function showHitCards(arrayHits){
 export async function getHeaderActions(){
     const trendingTracks = await helper.getTrendingTracks();
     const trendingArtists = await helper.getTrendingArtists();
+    const trendingPlaylists = await helper.getPlaylists();
     const authBtns = $$(".auth-btn");
     const userMenu = $(".user-menu");
     const currentUser = JSON.parse(localStorage.getItem('user'));
+    console.log(currentUser);
     if(!currentUser){
         authBtns.forEach(btn => {
             Object.assign(btn.style, {"display": "flex"});
@@ -418,15 +450,17 @@ export async function getHeaderActions(){
         } else {
             $(".user-displayname").textContent = currentUser.user.email
         }
+        $$$("avtImg").src = currentUser.user.avatar_url;
+        console.log($$$("avtImg"));
     }
 
     const searchInput = $(".search-input");
     const allTracks = await helper.getTracks();
     const allArtists = await helper.getArtists();
+    const allPlaylists = await helper.getPlaylists();
     searchInput.addEventListener("input", function(e){
         const inputValue = e.target.value;
         if(inputValue.trim().length > 0){
-            console.log(Boolean(inputValue.trim()));
             setTimeout(()=>{
                 const newPopularTracks = allTracks.tracks.filter(track => {
                     return track.title.toLowerCase().includes(inputValue.toLowerCase());
@@ -434,10 +468,13 @@ export async function getHeaderActions(){
                 const newArtists = allArtists.artists.filter(artist => {
                     return artist.name.toLowerCase().includes(inputValue.toLowerCase());
                 });
-                showHomeSections(newPopularTracks, newArtists);
+                const newPlaylists = allPlaylists.playlists.filter(playlist => {
+                    return playlist.name.toLowerCase().includes(inputValue.toLowerCase());
+                });
+                showHomeSections(newPopularTracks, newArtists, newPlaylists);
             }, 300)
         } else {
-            showHomeSections(trendingTracks.tracks, trendingArtists.artists);
+            showHomeSections(trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
         }
     })
 }
@@ -495,7 +532,7 @@ async function showMyPlaylists(){
     try {
         const myPlaylists = await helper.getMyPlaylists({token: stateHolder.token})
             .then(results => results.playlists);
-        const myFollowedArtists = await helper.getArtists({token: stateHolder.token})
+        const myFollowedArtists = await helper.getFollowedArtists({token: stateHolder.token})
             .then(resutls => resutls.artists)
             .then(results => {
                 results.map(async artist => {
@@ -523,7 +560,7 @@ async function showMyPlaylists(){
                 navtab.classList.remove("active");
             });
             this.classList.add("active");
-            showMyPlaylistsElements(myPlaylists, myFollowedPlaylist)
+            showMyPlaylistsElements(myPlaylists, null, myFollowedPlaylist)
         })
         navtabArtists.addEventListener("click", function(){
             navtabBtns.forEach(navtab => {
@@ -532,7 +569,7 @@ async function showMyPlaylists(){
             this.classList.add("active");
             const libraryContent = $(".library-content");
             libraryContent.style.display = "flex";
-            showMyPlaylistsElements(myFollowedArtists)
+            showMyPlaylistsElements(null, myFollowedArtists, null)
         })
 
         const searchLibraryInput = $$$("search-library-input");
@@ -676,8 +713,9 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
                     try {
                         const trendingTracks = await helper.getTrendingTracks();
                         const trendingArtists = await helper.getTrendingArtists();
+                        const trendingPlaylists = await helper.getPlaylists();
                         contextMenu.classList.remove("active");
-                        showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists);
+                        showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
                     } catch (error) {
                         toastSnackbar(error);
                     }
@@ -723,8 +761,9 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
                     try {
                         const trendingTracks = await helper.getTrendingTracks();
                         const trendingArtists = await helper.getTrendingArtists();
+                        const trendingPlaylists = await helper.getPlaylists();
                         contextMenu.classList.remove("active");
-                        showArtistDetailSection(artistID, trendingTracks.tracks, trendingArtists.artists)
+                        showArtistDetailSection(artistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists)
                     } catch (error) {
                         toastSnackbar(error);
                     }
@@ -756,8 +795,9 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
                     try {
                         const trendingTracks = await helper.getTrendingTracks();
                         const trendingArtists = await helper.getTrendingArtists();
+                        const trendingPlaylists = await helper.getPlaylists();
                         contextMenu.classList.remove("active");
-                        showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists);
+                        showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
                     } catch (error) {
                         toastSnackbar(error);
                     }
@@ -788,9 +828,10 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
     })
 }
 
-async function showPlaylistDetailSection(playlistID, popularTracks, artists) {
+async function showPlaylistDetailSection(playlistID, popularTracks, artists, playlists) {
     try {
         const playlist = await helper.getPlaylistByID(playlistID,{token: stateHolder.token});
+        const currentUser = JSON.parse(localStorage.getItem("user"))
         const getPlaylistTracks = await helper.getPlaylistTracks(playlistID,{token: stateHolder.token});
         const playlistTracks = getPlaylistTracks.tracks;
         let tracksInPlaylist = '';
@@ -821,6 +862,12 @@ async function showPlaylistDetailSection(playlistID, popularTracks, artists) {
                         <h1 class="playlist-detail-title">${playlist.name}</h1>
                         <p>${playlist.description}</p>
                         <p>${playlist.user_display_name}</p>
+                        ${ currentUser && currentUser.user.id !== playlist.user_id 
+                            ?  (playlist.is_following 
+                                ? '<button class="playlist-detail-unfollow">Unfollow</button>'
+                                : '<button class="playlist-detail-follow">Follow</button>')
+                            : ""
+                        }
                     </div>
                     <div class="playlist-back">
                         <span>⭠</span>
@@ -854,7 +901,7 @@ async function showPlaylistDetailSection(playlistID, popularTracks, artists) {
 
             const arrowBack = $(".playlist-back");
             arrowBack.addEventListener('click', function(){
-                showHomeSections(popularTracks, artists);
+                showHomeSections(popularTracks, artists, playlists);
             })
 
             $$('.track-in-list').forEach((track, index) => {
@@ -876,6 +923,33 @@ async function showPlaylistDetailSection(playlistID, popularTracks, artists) {
             playlistModalClose.addEventListener("click", function(){
                 playlistModal.classList.remove("show");
             })
+
+            const playlistDetailFollow = $(".playlist-detail-follow");
+            if(playlistDetailFollow){
+                playlistDetailFollow.addEventListener("click", async function(){
+                    try {
+                        await helper.followedPlaylist(playlistID, {token: stateHolder.token})
+                        getSidebarActions();
+                        showPlaylistDetailSection(playlistID, popularTracks, artists, playlists)
+                        toastSnackbar("Success!");
+                    } catch (error) {
+                        toastSnackbar(error);
+                    }
+                });
+            }
+            const playlistDetailUnfollow = $(".playlist-detail-unfollow");
+            if(playlistDetailUnfollow){
+                playlistDetailUnfollow.addEventListener("click", async function(){
+                    try {
+                        await helper.unfollowedPlaylist(playlistID, {token: stateHolder.token})
+                        getSidebarActions();
+                        showPlaylistDetailSection(playlistID, popularTracks, artists, playlists)
+                        toastSnackbar("Success!");
+                    } catch (error) {
+                        toastSnackbar(error);
+                    }
+                });
+            }
         }
     } catch (error) {
         toastSnackbar(error);
@@ -899,13 +973,22 @@ function showEditPlaylistDetailForm(playlist){
     playlistFormName.value = playlist?.name ||"";
     playlistFormDescription.value = playlist?.description ||"";
 
-    playlistFormAvatar.addEventListener('change', () => {
+    playlistFormAvatar.addEventListener('change', async () => {
         if (playlistFormAvatar.files.length > 0) {
             const selectedFile = playlistFormAvatar.files[0]; 
             if (selectedFile) {
                 const imgURL = URL.createObjectURL(selectedFile);
                 playlistFormImg.src = imgURL;
                 imgSource = selectedFile.name;
+                try {
+                    const formData = await new FormData();
+                    await formData.append(selectedFile)
+                    const result = await helper.uploadPlaylistCoverImg(playlist.id, formData, {token: stateHolder.token})
+                    playlistFormImg.src = result.file.url;
+                    toastSnackbar(result.message);
+                } catch (error) {
+                    toastSnackbar(error);
+                }
             }
         }
     });
@@ -918,14 +1001,15 @@ function showEditPlaylistDetailForm(playlist){
                     name: escapeHtml(playlistFormName.value),
                     description: escapeHtml(playlistFormDescription.value),
                     is_public: true,
-                    image_url: `"http://spotify.f8team.dev/uploads/images/http://spotify.f8team.dev/uploads/${imgSource}`
+                    image_url: `http://spotify.f8team.dev/uploads/images/http://spotify.f8team.dev/uploads/${imgSource}`
                 }
                 await helper.updatePlaylist(playlist.id, data, {token: stateHolder.token})
                 playlistModal.classList.remove("show");
-                const popularTracks = await helper.getPopularTracks();
-                const artists = await helper.getArtists();
+                const trendingTracks = await helper.getTrendingTracks();
+                const trendingArtists = await helper.getTrendingArtists();
+                const trendingPlaylists = await helper.getPlaylists();
                 showMyPlaylists()
-                showPlaylistDetailSection(playlist.id, popularTracks?.tracks, artists?.artists);
+                showPlaylistDetailSection(playlist.id, trendingTracks?.tracks, trendingArtists?.artists, trendingPlaylists?.playlists);
                 toastSnackbar("Success!");
             }
         } catch (error) {
@@ -1066,7 +1150,7 @@ export function getFooterActions(track){
     }
 }
 
-async function showArtistDetailSection(artistID, popularTracks, artists){
+async function showArtistDetailSection(artistID, popularTracks, artists, playlists){
     const artist = await helper.getArtistByID(artistID);
     const artistPopularTracks = await helper.getArtistPopularTracks(artistID)
         .then(result => result.tracks);
@@ -1151,7 +1235,7 @@ async function showArtistDetailSection(artistID, popularTracks, artists){
 
     const arrowBack = $(".hero-back");
     arrowBack.addEventListener('click', function(){
-        showHomeSections(popularTracks, artists);
+        showHomeSections(popularTracks, artists, playlists);
     })
 
     const trackDetailControls = $(".artist-controls");
@@ -1181,7 +1265,7 @@ async function showArtistDetailSection(artistID, popularTracks, artists){
             try {
                 await helper.followedArtist(artistID, {token: stateHolder.token});
                 showMyPlaylists();
-                showArtistDetailSection(artistID, popularTracks, artists)
+                showArtistDetailSection(artistID, popularTracks, artists, playlists)
                 toastSnackbar("Success!");
             } catch (error) {
                 toastSnackbar(error);
@@ -1193,7 +1277,7 @@ async function showArtistDetailSection(artistID, popularTracks, artists){
             try {
                 await helper.unfollowedArtist(artistID, {token: stateHolder.token});
                 showMyPlaylists();
-                showArtistDetailSection(artistID, popularTracks, artists)
+                showArtistDetailSection(artistID, popularTracks, artists, playlists)
                 toastSnackbar("Success!");
             } catch (error) {
                 toastSnackbar(error);
@@ -1226,8 +1310,19 @@ function showPopularArtistsSection(artists) {
     return html
 }
 
+function showAllPlaylistSection(playlists) {
+    let html = `<section class="playlists-section">
+                        <div class="section-header">
+                            <h2 class="section-heading">All playlists</h2>
+                        </div>
+                        <div class="playlists-grid">`;
+    html += showPlaylistCards(playlists);
+    html += "</div></section>";
+    return html
+}
 
-export function showHomeSections(popularTracks, artists){
+
+export function showHomeSections(popularTracks, artists, playlists){
     const contentWrapper = $('.content-wrapper');
     let homeSectionsHtml = '';
     // Today's Biggest Hits Section
@@ -1235,6 +1330,9 @@ export function showHomeSections(popularTracks, artists){
 
     // Popular Artists Section
     homeSectionsHtml += showPopularArtistsSection(artists);
+
+    // Playlist Section
+    homeSectionsHtml += showAllPlaylistSection(playlists);
 
     contentWrapper.innerHTML = homeSectionsHtml;
 
@@ -1244,7 +1342,7 @@ export function showHomeSections(popularTracks, artists){
             artistCard.addEventListener("click", function(e){
                 const card = e.target.closest('.artist-card');
                 const artistID = card.dataset.artistId;
-                showArtistDetailSection(artistID, popularTracks, artists);
+                showArtistDetailSection(artistID, popularTracks, artists, playlists);
             })
         }
     }
@@ -1255,7 +1353,7 @@ export function showHomeSections(popularTracks, artists){
             trackCard.addEventListener("click", function(e){
                 const card = e.target.closest(".hit-card");
                 const trackId = card.dataset.trackId;
-                showTrackDetailSection(trackId, popularTracks, artists);
+                showTrackDetailSection(trackId, popularTracks, artists, playlists);
             })
         })
     }
@@ -1271,17 +1369,33 @@ export function showHomeSections(popularTracks, artists){
         })
     }
 
+    const playlistImgs = $$(".playlist-card-cover-child");
+    playlistImgs.forEach(img => {
+        img.onerror = () => img.src = stateHolder._randomImg;
+    })
+
+    const playlistsCards = $$(".playlist-card");
+    if(playlistsCards){
+        playlistsCards.forEach(playlistCard => {
+            playlistCard.addEventListener("click", function(e){
+                const card = e.target.closest(".playlist-card");
+                const playlistId = card.dataset.playlistId;
+                showPlaylistDetailSection(playlistId, popularTracks, artists, playlists);
+            })
+        })
+    }
+
     const logoBtn = $(".logo");
     logoBtn.addEventListener('click', function(){
-        showHomeSections(popularTracks, artists);
+        showHomeSections(popularTracks, artists, playlists);
     })
     const homeBtn = $(".home-btn");
     homeBtn.addEventListener('click', function(){
-        showHomeSections(popularTracks, artists);
+        showHomeSections(popularTracks, artists, playlists);
     })
 }
 
-async function showTrackDetailSection(trackId, popularTracks, artists){
+async function showTrackDetailSection(trackId, popularTracks, artists, playlists){
     try {
         const contentWrapper = $('.content-wrapper');
         const trackDetail = await helper.getTrackByID(trackId);
@@ -1366,7 +1480,7 @@ async function showTrackDetailSection(trackId, popularTracks, artists){
 
         const arrowBack = $(".track-back");
         arrowBack.addEventListener('click', function(){
-            showHomeSections(popularTracks, artists);
+            showHomeSections(popularTracks, artists, playlists);
         })
 
         const trackDetailControls = $(".track-detail-controls");
@@ -1405,7 +1519,7 @@ async function showTrackDetailSection(trackId, popularTracks, artists){
                     await helper.addTrackToPlaylist(myPlaylistID, data, {token: stateHolder.token});
                     showMyPlaylists();
                     getFooterActions();
-                    showTrackDetailSection(trackId, popularTracks, artists)
+                    showTrackDetailSection(trackId, popularTracks, artists, playlists)
                     toastSnackbar("Success!");
                 } catch (error) {
                     toastSnackbar(error);
@@ -1420,7 +1534,7 @@ async function showTrackDetailSection(trackId, popularTracks, artists){
                     const myPlaylistID = myPlaylists[0].id;
                     await helper.removeTrackFromPlaylist(myPlaylistID, trackId, {token: stateHolder.token});
                     showMyPlaylists();
-                    showTrackDetailSection(trackId, popularTracks, artists)
+                    showTrackDetailSection(trackId, popularTracks, artists, playlists)
                     toastSnackbar("Success!");
                 } catch (error) {
                     toastSnackbar(error);

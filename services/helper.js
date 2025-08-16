@@ -73,16 +73,6 @@ class Helper{
         return await httpRequest.post("auth/refresh-token", null, options);
     }
 
-    async getMePlaylists(options){
-        return await httpRequest.get('playlists/me', null, options);
-    }
-    async getCurrentTrack(options){
-        return await httpRequest.post('me/player', null, options)
-    }
-    async playTrack(trackID, data, options = {}){
-        return await httpRequest.post(`tracks/${trackID}/play`, data, options)
-    }
-
     // CURD Playlist
     async getPlaylistByID(playlistID, options){
         return await httpRequest.get(`playlists/${playlistID}`, options)
@@ -107,14 +97,8 @@ class Helper{
     }
 
     // Me Get
-    async getLikedTracks(options = {}){
-        return await httpRequest.get("users/me/tracks", options)
-    }
-    async getLikedAlbums(options = {}){
-        return await httpRequest.get("users/me/albums", options)
-    }
     async getFollowedArtists(options = {}){
-        return await httpRequest.get("users/me/artists", options)
+        return await httpRequest.get("me/following", options)
     }
     async getMyPlaylists(options = {}){
         return await httpRequest.get("me/playlists", options)
@@ -127,11 +111,8 @@ class Helper{
     async likedAlbum(albumID, options){
         return await httpRequest.patch(`albums/${albumID}/like`, null, options)
     }
-    async followedPlaylists(playlistID, options){
-        return await httpRequest.patch(`playlists/${playlistID}/follow`, null, options)
-    }
     async followedArtist(artistID, options){
-        return await httpRequest.put(`artists/${artistID}/follow`, null, options)
+        return await httpRequest.post(`artists/${artistID}/follow`, null, options)
     }
     async unfollowedArtist(artistID, options){
         return await httpRequest.del(`artists/${artistID}/follow`, options)
@@ -139,15 +120,18 @@ class Helper{
 
 
     async followedPlaylist(playlistID, options){
-        return await httpRequest.put(`playlists/${playlistID}/follow`, null, options)
+        return await httpRequest.post(`playlists/${playlistID}/follow`, null, options)
     }
     async unfollowedPlaylist(playlistID, options){
         return await httpRequest.del(`playlists/${playlistID}/follow`, options)
     }
 
-    // Record track position
-    async reorderTrackPosition(playlistID, trackID, options){
-        return await httpRequest.patch(`playlists/${playlistID}/tracks/${trackID}/position`, null, options)
+    // Upload Img
+    async uploadPlaylistCoverImg(playlistID, data ,options= {}){
+        return await httpRequest.post(`upload/playlist/${playlistID}/cover`, data, options);
+    }
+    async uploadAvatarImg(data ,options= {}){
+        return await httpRequest.post(`upload/avatar`, data, options);
     }
 }
 

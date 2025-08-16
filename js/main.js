@@ -159,13 +159,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Other functionality
 document.addEventListener("DOMContentLoaded", async function () {
-    const popularTracks = await helper.getTrendingTracks();
-    const artists = await helper.getTrendingArtists();
+    const trendingTracks = await helper.getTrendingTracks();
+    const trendingArtists = await helper.getTrendingArtists();
+    const trendingPlaylists = await helper.getPlaylists();
     
     // Check user info for Header, Footer
     await ultils.getHeaderActions();
     await ultils.getSidebarActions();
-    await ultils.getFooterActions(popularTracks.tracks[0]);
-    await ultils.showHomeSections(popularTracks.tracks, artists.artists);
+    await ultils.getFooterActions(trendingTracks.tracks[0]);
+    await ultils.showHomeSections(trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
     
 });
