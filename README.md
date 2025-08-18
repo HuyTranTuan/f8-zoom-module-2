@@ -4,7 +4,7 @@
 Download this project and run it with live-server
 ```
 
-[Link demo](https://huytrantuan.github.io/f8-zoom-module-2/)
+[**✨ 🚀 Link demo ✨**](https://huytrantuan.github.io/f8-zoom-module-2/)
 
 ## Playlist functions
 
