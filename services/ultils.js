@@ -4,6 +4,7 @@ const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 const $$$ = document.getElementById.bind(document);
 
+// StateHolder for all Apps
 const stateHolder = {
     token: await checkValidToken(),
     currentAudio: new Audio(),
@@ -17,6 +18,8 @@ const stateHolder = {
     _randomImg: "https://chrt.org/wp-content/uploads/2023/03/shutterstock_2220431045-300x300.jpg",
     _validImageTypes: ['jpeg', 'png', 'gif', 'bmp', 'webp', "jpg"],
 }
+
+// Signup Function
 export function signup(){
     const signupUsername = $$$('signupUsername');
     const signupDisplayname = $$$('signupDisplayname');
@@ -36,6 +39,7 @@ export function signup(){
     let isPasswValid = false;
     let isConfirmPasswValid = false;
 
+    // Verify fields
     signupUsername.addEventListener("input", function() {
         username = escapeHtml(this.value);
     })
@@ -84,7 +88,6 @@ export function signup(){
             isEmailValid = true;
         }
     })
-
     
     signupPassword.addEventListener("input", function() {
         password = escapeHtml(this.value);
@@ -145,7 +148,9 @@ export function signup(){
                 localStorage.setItem('user', JSON.stringify({ user: loginResult.user, access_token: loginResult.access_token}));
                 stateHolder.token = loginResult.access_token;
                 authModal.classList.remove("show");
-                document.body.style.overflow = "auto"; // Restore scrolling
+                // Restore scrolling
+                document.body.style.overflow = "auto"; 
+                // Reupdate some elements
                 await getHeaderActions();
                 await getSidebarActions();
                 await getFooterActions(popularTracks.tracks[0]);
@@ -160,6 +165,7 @@ export function signup(){
 
 }
 
+// Login Function
 export function login(){
     const loginEmail = $$$('loginEmail');
     const loginPassword = $$$('loginPassword');
@@ -168,6 +174,7 @@ export function login(){
     let isEmailValid = false;
     let isPasswValid = false;
 
+    // Verify fields
     loginEmail.addEventListener("input", function() {
         email = escapeHtml(this.value);
     })
@@ -212,7 +219,9 @@ export function login(){
                 await localStorage.setItem('user', JSON.stringify({ user: result.user, access_token: result.access_token}));
                 stateHolder.token = result.access_token;
                 await authModal.classList.remove("show");
+                // Restore scrolling
                 document.body.style.overflow = "auto";
+                // Reupdate some elements
                 await getHeaderActions();
                 await getSidebarActions();
                 await getFooterActions(popularTracks.tracks[0]);
@@ -324,7 +333,7 @@ export function showUpdateUserProfile(){
     
     userForm.addEventListener('submit', async function(e){
         e.preventDefault();
-        if(username && displayname && email){
+        if(isUsernameValid && isDisplaynameValid && isEmailValid){
             try {
                 const userProfile = await {
                     email: email,
@@ -347,16 +356,19 @@ export function showUpdateUserProfile(){
         }
     })
 
+    // Close btn
     const userModalClose = $$$("userModalClose");
     userModalClose.addEventListener("click", function(){
         userModal.classList.remove("show");
     })
 }
 
+// Logout Function
 export async function logout(){
     const access_token = await JSON.parse(localStorage.getItem("user"))?.access_token;
     await helper.logout("auth/logout", null, access_token);
     await localStorage.removeItem("user");
+    // Reupdate some elements
     await getHeaderActions();
     await getSidebarActions();
     await getFooterActions();
@@ -436,7 +448,6 @@ export async function getHeaderActions(){
     const authBtns = $$(".auth-btn");
     const userMenu = $(".user-menu");
     const currentUser = JSON.parse(localStorage.getItem('user'));
-    console.log(currentUser);
     if(!currentUser){
         authBtns.forEach(btn => {
             Object.assign(btn.style, {"display": "flex"});
@@ -964,9 +975,10 @@ function showEditPlaylistDetailForm(playlist){
     const playlistFormDescription = $$$("playlistDescription");
     const playlistFormAvatar = $$$("playlist-form-avatar");
     const editPlaylistDetailForm = $(".playlist-modal-form");
-    console.log(playlist);
+
     let imgSource = playlist?.image_url;
     playlistFormImg.src = imgSource;
+    // When img link is error
     playlistFormImg.onerror = () => {
         playlistFormImg.src = stateHolder._randomImg
     }
@@ -984,6 +996,7 @@ function showEditPlaylistDetailForm(playlist){
                     const result = await helper.uploadPlaylistCoverImg(playlist.id, formData, {token: stateHolder.token});
                     imgSource = `http://spotify.f8team.dev/${result.file.url}`;
                     playlistFormImg.src = imgSource;
+                    // Reupdate some elements
                     getHeaderActions();
                     toastSnackbar(result.message);
                 } catch (error) {
@@ -1005,6 +1018,8 @@ function showEditPlaylistDetailForm(playlist){
                 }
                 await helper.updatePlaylist(playlist.id, data, {token: stateHolder.token})
                 playlistModal.classList.remove("show");
+
+                // Reupdate some elements
                 const trendingTracks = await helper.getTrendingTracks();
                 const trendingArtists = await helper.getTrendingArtists();
                 const trendingPlaylists = await helper.getPlaylists();
@@ -1264,6 +1279,7 @@ async function showArtistDetailSection(artistID, popularTracks, artists, playlis
         followArtistBtn.addEventListener("click", async function(e){
             try {
                 await helper.followedArtist(artistID, {token: stateHolder.token});
+                // Reupdate some elements
                 showMyPlaylists();
                 showArtistDetailSection(artistID, popularTracks, artists, playlists)
                 toastSnackbar("Success!");
@@ -1276,6 +1292,7 @@ async function showArtistDetailSection(artistID, popularTracks, artists, playlis
         unfollowArtistBtn.addEventListener("click", async function(e){
             try {
                 await helper.unfollowedArtist(artistID, {token: stateHolder.token});
+                // Reupdate some elements
                 showMyPlaylists();
                 showArtistDetailSection(artistID, popularTracks, artists, playlists)
                 toastSnackbar("Success!");
@@ -1517,6 +1534,7 @@ async function showTrackDetailSection(trackId, popularTracks, artists, playlists
                         "position": 0
                     }
                     await helper.addTrackToPlaylist(myPlaylistID, data, {token: stateHolder.token});
+                    // Reupdate some elements
                     showMyPlaylists();
                     getFooterActions();
                     showTrackDetailSection(trackId, popularTracks, artists, playlists)
@@ -1533,6 +1551,7 @@ async function showTrackDetailSection(trackId, popularTracks, artists, playlists
                     const myPlaylists = await getMyPlaylists?.playlists.filter(item => item.is_public === 0);
                     const myPlaylistID = myPlaylists[0].id;
                     await helper.removeTrackFromPlaylist(myPlaylistID, trackId, {token: stateHolder.token});
+                    // Reupdate some elements
                     showMyPlaylists();
                     showTrackDetailSection(trackId, popularTracks, artists, playlists)
                     toastSnackbar("Success!");
