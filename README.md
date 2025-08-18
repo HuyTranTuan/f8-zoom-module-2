@@ -1,11 +1,10 @@
 # Spotify Clone
 
-Some basic Git commands are:
-
 ```
 Download this project and run it with live-server
-Link demo : [Link Text](https://huytrantuan.github.io/f8-zoom-module-2/)
 ```
+
+[Link demo](https://huytrantuan.github.io/f8-zoom-module-2/)
 
 ## Playlist functions
 
