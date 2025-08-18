@@ -227,6 +227,7 @@ export function login(){
 }
 
 export function showUpdateUserProfile(){
+    const userModal = $$$("userModal");
     const currentUser = JSON.parse(localStorage.getItem("user"));
     const currentUserInfo = currentUser.user;
     const currentUserToken = currentUser.access_token;
@@ -235,6 +236,7 @@ export function showUpdateUserProfile(){
     const userDisplayname = $$$("userDisplayname");
     const userEmail = $$$("userEmail");
     const userImgInput = $$$("userImgInput");
+    const userImg = userImgInput.parentElement.querySelector('img')
     
     userUsername.value = currentUserInfo?.username ||"";
     userDisplayname.value = currentUserInfo?.display_name ||"";
@@ -246,26 +248,22 @@ export function showUpdateUserProfile(){
     let isUsernameValid = true;
     let isDisplaynameValid = true;
     let isEmailValid = true;
-    userImgInput.src = imgSource;
 
-    userImgInput.onerror = () => {
-        userImgInput.src = stateHolder._randomImg;
+    userImg.src = imgSource;
+    userImg.onerror = () => {
+        userImg.src = stateHolder._randomImg;
     }
 
+    const formData = new FormData();
     userImgInput.addEventListener('change', async () => {
         if (userImgInput.files.length > 0) {
             const selectedFile = userImgInput.files[0];
             if (selectedFile) {
-                const imgURL = URL.createObjectURL(selectedFile);
-                // Find the preview image next to the input
-                const previewImg = userImgInput.parentElement.querySelector('img');
-                if (previewImg) previewImg.src = imgURL;
-                imgSource = selectedFile.name;
                 try {
-                    const formData = await new FormData();
-                    await formData.append(selectedFile)
-                    const result = await helper.uploadAvatarImg(formData, {token: stateHolder.token})
-                    userImgInput.src = result.file.url;
+                    formData.append("avatar", selectedFile);
+                    const result = await helper.uploadAvatarImg(formData, {token: stateHolder.token});
+                    imgSource = `http://spotify.f8team.dev/${result.file.url}`;
+                    userImg.src = imgSource;
                     getHeaderActions();
                     toastSnackbar(result.message);
                 } catch (error) {
@@ -332,13 +330,12 @@ export function showUpdateUserProfile(){
                     email: email,
                     username: username,
                     display_name: displayname,
-                    avatar_url: `http://spotify.f8team.dev/uploads/images/${imgSource}`
+                    avatar_url: imgSource
                 }
                 const result = await helper.updateProfile(currentUserInfo.id, userProfile, {token: currentUserToken});
                 await localStorage.setItem('user', JSON.stringify({ user: result.data, access_token: currentUserToken}));
                 stateHolder.token = currentUserToken;
-                const userModal = $$$("userModal");
-                await userModal.classList.remove("show");
+                userModal.classList.remove("show");
                 document.body.style.overflow = "auto";
                 getHeaderActions()
                 toastSnackbar("Success!");
@@ -348,6 +345,11 @@ export function showUpdateUserProfile(){
         } else {
             toastSnackbar("Fail to update!");
         }
+    })
+
+    const userModalClose = $$$("userModalClose");
+    userModalClose.addEventListener("click", function(){
+        userModal.classList.remove("show");
     })
 }
 
@@ -451,7 +453,6 @@ export async function getHeaderActions(){
             $(".user-displayname").textContent = currentUser.user.email
         }
         $$$("avtImg").src = currentUser.user.avatar_url;
-        console.log($$$("avtImg"));
     }
 
     const searchInput = $(".search-input");
@@ -507,7 +508,7 @@ export function getSidebarActions(){
                 name: "My New Playlist",
                 description: "Playlist description",
                 is_public: true,
-                image_url: "https://example.com/playlist-cover.jpg"
+                image_url: stateHolder._randomImg
             }
             await helper.createPlaylist(data, {token: stateHolder.token})
             showMyPlaylists();
@@ -963,8 +964,8 @@ function showEditPlaylistDetailForm(playlist){
     const playlistFormDescription = $$$("playlistDescription");
     const playlistFormAvatar = $$$("playlist-form-avatar");
     const editPlaylistDetailForm = $(".playlist-modal-form");
-
-    let imgSource = playlist?.image_url || stateHolder._randomImg;
+    console.log(playlist);
+    let imgSource = playlist?.image_url;
     playlistFormImg.src = imgSource;
     playlistFormImg.onerror = () => {
         playlistFormImg.src = stateHolder._randomImg
@@ -972,19 +973,18 @@ function showEditPlaylistDetailForm(playlist){
 
     playlistFormName.value = playlist?.name ||"";
     playlistFormDescription.value = playlist?.description ||"";
-
+    
+    const formData = new FormData();
     playlistFormAvatar.addEventListener('change', async () => {
         if (playlistFormAvatar.files.length > 0) {
             const selectedFile = playlistFormAvatar.files[0]; 
             if (selectedFile) {
-                const imgURL = URL.createObjectURL(selectedFile);
-                playlistFormImg.src = imgURL;
-                imgSource = selectedFile.name;
                 try {
-                    const formData = await new FormData();
-                    await formData.append(selectedFile)
-                    const result = await helper.uploadPlaylistCoverImg(playlist.id, formData, {token: stateHolder.token})
-                    playlistFormImg.src = result.file.url;
+                    formData.append("cover", selectedFile);
+                    const result = await helper.uploadPlaylistCoverImg(playlist.id, formData, {token: stateHolder.token});
+                    imgSource = `http://spotify.f8team.dev/${result.file.url}`;
+                    playlistFormImg.src = imgSource;
+                    getHeaderActions();
                     toastSnackbar(result.message);
                 } catch (error) {
                     toastSnackbar(error);
@@ -1001,7 +1001,7 @@ function showEditPlaylistDetailForm(playlist){
                     name: escapeHtml(playlistFormName.value),
                     description: escapeHtml(playlistFormDescription.value),
                     is_public: true,
-                    image_url: `http://spotify.f8team.dev/uploads/images/http://spotify.f8team.dev/uploads/${imgSource}`
+                    image_url: imgSource
                 }
                 await helper.updatePlaylist(playlist.id, data, {token: stateHolder.token})
                 playlistModal.classList.remove("show");

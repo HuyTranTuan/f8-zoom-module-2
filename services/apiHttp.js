@@ -43,12 +43,55 @@ class HttpRequest{
         }
     }
 
+    async _sendFormdata(endpoint, method, data, options = {}){
+        try {
+            const _customRequest = {
+                ...options,
+                method: method,
+                headers: {
+                    ...options.headers,
+                    "Access-Control-Allow-Origin": '*'
+                }
+            }
+    
+            if(data){
+                _customRequest.body = data;
+            }
+            if(options.token){
+                _customRequest.headers["Authorization"] = `Bearer ${options.token}`
+            }
+
+            const res = await fetch(`${this.baseUrl}${endpoint}`, _customRequest);
+            if (!res.ok) {
+                switch(res.status){
+                    case 404:
+                        throw new Error(" Not Found 404 ");
+                    case 409:
+                        throw new Error(" Already Had 409 ");
+                    case 500:
+                        throw new Error(" Server Error 500 ");
+                    default:
+                        throw new Error("HTTP error ", res.status);
+                }
+            }
+
+            const response = await res.json();
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async get(endpoint, options = {}){
         return await this._send(endpoint, "GET", null, options);
     }
 
     async post(endpoint, data, options = {}){
         return await this._send(endpoint, "POST", data, options);
+    }
+
+    async postfile(endpoint, data, options = {}){
+        return await this._sendFormdata(endpoint, "POST", data, options);
     }
 
     async put(endpoint, data, options = {}){

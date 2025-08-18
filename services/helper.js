@@ -83,7 +83,7 @@ class Helper{
     async createPlaylist(data, options){
         return await httpRequest.post(`playlists`, data, options)
     }
-    async updatePlaylist(playlistID, data, options){
+    async updatePlaylist(playlistID, data, options={}){
         return await httpRequest.put(`playlists/${playlistID}`, data, options)
     }
     async deletePlaylist(playlistID, options){
@@ -127,11 +127,11 @@ class Helper{
     }
 
     // Upload Img
-    async uploadPlaylistCoverImg(playlistID, data ,options= {}){
-        return await httpRequest.post(`upload/playlist/${playlistID}/cover`, data, options);
+    async uploadPlaylistCoverImg(playlistID, data, options= {}){
+        return await httpRequest.postfile(`upload/playlist/${playlistID}/cover`, data, options);
     }
-    async uploadAvatarImg(data ,options= {}){
-        return await httpRequest.post(`upload/avatar`, data, options);
+    async uploadAvatarImg(data, options= {}){
+        return await httpRequest.postfile(`upload/avatar`, data, options);
     }
 }
 
