@@ -4,7 +4,7 @@ Some basic Git commands are:
 
 ```
 Download this project and run it with live-server
-[Link demo](https://huytrantuan.github.io/f8-zoom-module-2/)
+Link demo : [Link Text](https://huytrantuan.github.io/f8-zoom-module-2/)
 ```
 
 ## Playlist functions
@@ -32,10 +32,11 @@ Download this project and run it with live-server
 - Seeking current song
 - Adjust volume of song
 
-** Keyboard Manipulating **
-++ UP: Volume up
-++ DOWN: Volume down
-++ LEFT: Seeking left for 5s
-++ RIGHT: Seeking right for 5s
-++ M: Mute song
-++ SPACE: Play/Pause song
+**Keyboard Manipulating**
+
+- UP: Volume up
+- DOWN: Volume down
+- LEFT: Seeking left for 5s
+- RIGHT: Seeking right for 5s
+- M: Mute song
+- SPACE: Play/Pause song
