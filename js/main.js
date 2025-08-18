@@ -168,5 +168,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     await ultils.getSidebarActions();
     await ultils.getFooterActions(trendingTracks.tracks[0]);
     await ultils.showHomeSections(trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
-    
+
+    const player = document.querySelector(".player");
+    // Make player focusable
+    player.setAttribute("tabindex", "0"); 
+
+    player.addEventListener("keyup", function(event) {
+        ultils.manipulateKeyUp(event);
+    });
+
+    // Optionally, focus the player when clicked
+    player.addEventListener("click", function() {
+        player.focus();
+    });
 });

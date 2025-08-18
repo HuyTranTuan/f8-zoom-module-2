@@ -1859,19 +1859,6 @@ async function audioController(track, audio, isPlayed){
         audio.volume = (tempSliderValue * 1) / 100;
         volumeBar.style.background = `linear-gradient(to right, #f50 ${volume}%, #ccc ${volume}%)`;
     })
-
-    const player = $(".player");
-    // Make player focusable
-    player.setAttribute("tabindex", "0"); 
-
-    player.addEventListener("keyup", function(event) {
-        manipulateKeyUp(event, volumeBar);
-    });
-
-    // Optionally, focus the player when clicked
-    player.addEventListener("click", function() {
-        player.focus();
-    });
 }
 
 async function showMyPlaylistsAddTrack(){
@@ -1941,12 +1928,24 @@ function handleEndedAudio(audio, currentTrack){
                 audio.play();
                 break;
             case 2:
-                const index = stateHolder.readyToPlayTracks.findIndex(x => x.id === currentTrack.id);
-                if(index < stateHolder.readyToPlayTracks.length - 1){
-                    updatePlayer(stateHolder.readyToPlayTracks[index + 1]);
-                }
-                if(index === stateHolder.readyToPlayTracks.length -1){
-                    updatePlayer(stateHolder.readyToPlayTracks[0]);
+                if(stateHolder._shuffleState){
+                    let trackOrder = stateHolder.readyToPlayTracks.findIndex(x => x.id === currentTrack.id);
+                    let listLength = stateHolder.readyToPlayTracks.length 
+                    if(stateHolder._shuffleState){
+                        let random = trackOrder;
+                        while(random === trackOrder){
+                            random = getRandomIndex(listLength);
+                        }
+                        updatePlayer(stateHolder.readyToPlayTracks[random], stateHolder.currentAudio);
+                    }
+                } else {
+                    const index = stateHolder.readyToPlayTracks.findIndex(x => x.id === currentTrack.id);
+                    if(index < stateHolder.readyToPlayTracks.length - 1){
+                        updatePlayer(stateHolder.readyToPlayTracks[index + 1]);
+                    }
+                    if(index === stateHolder.readyToPlayTracks.length -1){
+                        updatePlayer(stateHolder.readyToPlayTracks[0]);
+                    }
                 }
                 audio.play();
                 break;
@@ -2002,7 +2001,8 @@ function showSeeking(progressBar, timeSeek){
     });
 }
 
-function manipulateKeyUp(event, volume){
+export function manipulateKeyUp(event, volume){
+    const volumeBar = $("#volume-track-fill");
     switch (event.code){
         case 'Space':
             const playBtn = $(".control-btn.play-btn");
@@ -2021,11 +2021,11 @@ function manipulateKeyUp(event, volume){
             if(stateHolder.currentAudio.volume > 0.95 && stateHolder.currentAudio.volume < 1){
                 stateHolder.currentAudio.volume = 1;
             }
-            volume.value = stateHolder.currentAudio.volume * 100;
-            volume.classList.add('active');
-            volume.style.background = `linear-gradient(to right, #f50 ${volume.value}%, #ccc ${volume.value}%)`;
+            volumeBar.value = stateHolder.currentAudio.volume * 100;
+            volumeBar.classList.add('active');
+            volumeBar.style.background = `linear-gradient(to right, #f50 ${volumeBar.value}%, #ccc ${volumeBar.value}%)`;
             setTimeout(()=>{
-                volume.classList.remove('active');
+                volumeBar.classList.remove('active');
             }, 2000)
             break;
         case 'ArrowDown':
@@ -2035,11 +2035,11 @@ function manipulateKeyUp(event, volume){
             if(stateHolder.currentAudio.volume < 0.05 && stateHolder.currentAudio.volume > 0){
                 stateHolder.currentAudio.volume = 0;
             }
-            volume.value = stateHolder.currentAudio.volume * 100;
-            volume.classList.add('active');
-            volume.style.background = `linear-gradient(to right, #f50 ${volume.value}%, #ccc ${volume.value}%)`;
+            volumeBar.value = stateHolder.currentAudio.volume * 100;
+            volumeBar.classList.add('active');
+            volumeBar.style.background = `linear-gradient(to right, #f50 ${volumeBar.value}%, #ccc ${volumeBar.value}%)`;
             setTimeout(()=>{
-                volume.classList.remove('active');
+                volumeBar.classList.remove('active');
             }, 2000)
             break;
         case 'ArrowLeft':
@@ -2055,6 +2055,29 @@ function manipulateKeyUp(event, volume){
             }
             stateHolder.currentAudio.currentTime += 5
             updateTimeHandler(stateHolder.currentAudio);
+            break;
+        case "KeyM":
+            stateHolder.currentAudio.muted = !stateHolder.currentAudio.muted;
+            break;
+        case "KeyR":
+            const repeatBtn = $(".control-btn.btn-repeat");
+            stateHolder._repeatState += 1;
+            if(stateHolder._repeatState > 2)
+                stateHolder._repeatState = 0;
+
+            if(stateHolder._repeatState !== 0){
+                repeatBtn.classList.add("active");
+            } else {
+                repeatBtn.classList.remove("active");
+            }
+            
+            repeatBtn.innerHTML = `<i class="fas fa-redo"></i>
+                                ${stateHolder._repeatState !== 0 ? `<span>${stateHolder._repeatState}</span>` : "" }`;
+            break;
+        case "KeyS":
+            const shuffleBtn = $(".control-btn.btn-shuffle");
+            shuffleBtn.classList.toggle("active");
+            stateHolder._shuffleState = !stateHolder._shuffleState;
             break;
     }
 }
