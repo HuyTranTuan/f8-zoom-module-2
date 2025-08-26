@@ -66,11 +66,35 @@
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
+  position: relative;
 }
 
 .home-btn:hover {
   background-color: var(--bg-hover);
   transform: scale(1.04);
+}
+
+.home-btn-tooltip {
+  position: absolute;
+  font-weight: 700;
+  top: 25px;
+  left: 0px;
+  transform: translate(0%, 20px);
+  padding: 5px;
+  background-color: #1f1f1f;
+  color: white;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: all 0.3s ease;
+  width: max-content;
+}
+
+.home-btn:hover .home-btn-tooltip {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
 }
 
 .home-btn i {
@@ -147,11 +171,35 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  position: relative;
 }
 
 .create-btn:hover {
   color: var(--text-primary);
   transform: scale(1.04);
+}
+
+.create-btn-tooltip {
+  position: absolute;
+  width: fit-content;
+  height: fit-content;
+  top: 10px;
+  left: 0px;
+  transform: translate(0%, 10px);
+  padding: 5px;
+  background-color: #424242;
+  color: white;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover .create-btn-tooltip {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
 }
 
 .create-btn i {
@@ -256,6 +304,28 @@
   position: relative;
   flex: 1;
   max-width: 364px;
+}
+
+.search-input-wrapper-tooltip {
+  position: absolute;
+  font-weight: 700;
+  top: 30px;
+  left: 50%;
+  transform: translate(0%, 0px);
+  padding: 5px;
+  background-color: #1f1f1f;
+  color: white;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: all 0.3s ease;
+}
+
+.search-input-wrapper:hover .search-input-wrapper-tooltip {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
 }
 
 .search-input {
@@ -637,7 +707,6 @@
   height: 50px;
   cursor: pointer;
   transition: transform var(--transition-fast);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -682,6 +751,29 @@
 .add-btn:hover {
   color: var(--text-primary);
   transform: scale(1.04);
+}
+
+.add-btn-tooltip {
+  position: absolute;
+  font-weight: 700;
+  top: -30px;
+  left: 20px;
+  transform: translate(0%, 0px);
+  padding: 5px;
+  background-color: #424242;
+  color: white !important;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: all 0.3s ease;
+  width: max-content;
+}
+
+.add-btn:hover .add-btn-tooltip {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
 }
 
 .add-btn i {
@@ -949,10 +1041,33 @@
 /* User Menu */
 .user-menu {
   position: relative;
-  /* display: flex; */
   align-items: center;
   display: none;
 }
+
+.user-menu-tooltip {
+  position: absolute;
+  font-weight: 700;
+  top: 35px;
+  left: 0%;
+  transform: translate(0%, 0px);
+  padding: 5px;
+  background-color: #1f1f1f;
+  color: white;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.user-menu:hover .user-menu-tooltip {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
+}
+
 /* User Dropdown */
 .user-dropdown {
   position: absolute;
@@ -1388,6 +1503,10 @@ select:hover {
 .playlist-sortby li:hover {
   background-color: #0f0f0f;
 }
+.playlist-sortby li.active {
+  background-color: var(--accent-primary);
+  color: white;
+}
 
 .playlist-viewas {
   display: flex;
@@ -1401,10 +1520,38 @@ select:hover {
 .playlist-viewas li {
   border-radius: 5px;
   padding: 5px;
+  position: relative;
 }
 
 .playlist-viewas li:hover {
   background-color: #0f0f0f;
+}
+
+.playlist-viewas-item-tooltip {
+  position: absolute;
+  font-weight: 700;
+  top: 25px;
+  left: 0px;
+  transform: translate(-50%, 20px);
+  padding: 5px;
+  background-color: #1f1f1f;
+  color: white !important;
+  border-radius: 5px;
+  visibility: hidden;
+  opacity: 0;
+  scale: 0.5;
+  transition: all 0.3s ease;
+}
+
+.playlist-viewas li:hover .playlist-viewas-item-tooltip {
+  visibility: visible;
+  opacity: 1;
+  scale: 1;
+}
+
+.playlist-viewas li.active {
+  background-color: var(--accent-hover);
+  color: white;
 }
 
 /* playlist Modal */

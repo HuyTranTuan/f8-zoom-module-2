@@ -137,6 +137,7 @@ export function signup(){
                     country: signupCountry.value
                 }
                 await helper.register('auth/register', signupInfo);
+                signupForm.querySelector(".auth-form-content").reset();
 
                 //Login right after Register
                 const loginInfo = await {
@@ -215,6 +216,7 @@ export function login(){
                     password: password,
                 }
                 const result = await helper.login('auth/login', loginInfo);
+                toastSnackbar("Success!");
                 const popularTracks = await helper.getTrendingTracks();
                 await localStorage.setItem('user', JSON.stringify({ user: result.user, access_token: result.access_token}));
                 stateHolder.token = result.access_token;
@@ -225,7 +227,7 @@ export function login(){
                 await getHeaderActions();
                 await getSidebarActions();
                 await getFooterActions(popularTracks.tracks[0]);
-                toastSnackbar("Success!");
+                loginForm.querySelector(".auth-form-content").reset();
             } catch (error) {
                 toastSnackbar(error);
             }
@@ -463,7 +465,9 @@ export async function getHeaderActions(){
         } else {
             $(".user-displayname").textContent = currentUser.user.email
         }
-        $$$("avtImg").src = currentUser.user.avatar_url;
+        const avtImg = $$$("avtImg");
+        avtImg.src = currentUser.user.avatar_url;
+        avtImg.onerror = () => avtImg.src = stateHolder._randomImg;
     }
 
     const searchInput = $(".search-input");
@@ -713,6 +717,7 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
     setArrangeOptions();
 
     const libraryItems = $$(".library-item");
+    const allContextMenus = $$(".item-contextmenu");
     libraryItems.forEach(item => {
         if(item.dataset.type === "myPlaylist"){
             const playlistModal = $$$("playlistModal");
@@ -723,18 +728,28 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
             if(item){
                 item.addEventListener("click",  async function(){
                     try {
-                        const trendingTracks = await helper.getTrendingTracks();
-                        const trendingArtists = await helper.getTrendingArtists();
-                        const trendingPlaylists = await helper.getPlaylists();
-                        contextMenu.classList.remove("active");
-                        showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
+                        if(contextMenu.classList.contains("active")){
+                            contextMenu.classList.remove("active");
+                        } else{
+                            const trendingTracks = await helper.getTrendingTracks();
+                            const trendingArtists = await helper.getTrendingArtists();
+                            const trendingPlaylists = await helper.getPlaylists();
+                            showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
+                        }
                     } catch (error) {
                         toastSnackbar(error);
                     }
                 })
                 item.addEventListener('contextmenu', (event) => {
                     event.preventDefault();
-                    contextMenu.classList.toggle("active");
+                    if(contextMenu.classList.contains("active")){
+                        contextMenu.classList.remove("active");
+                    } else {
+                        allContextMenus.forEach(item => {
+                            item.classList.remove("active");
+                        })
+                        contextMenu.classList.add("active");
+                    }
                 });
             }
             if(contextMenu){
@@ -771,18 +786,28 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
             if(item){
                 item.addEventListener("click",  async function(){
                     try {
-                        const trendingTracks = await helper.getTrendingTracks();
-                        const trendingArtists = await helper.getTrendingArtists();
-                        const trendingPlaylists = await helper.getPlaylists();
-                        contextMenu.classList.remove("active");
-                        showArtistDetailSection(artistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists)
+                        if(contextMenu.classList.contains("active")){
+                            contextMenu.classList.remove("active");
+                        } else {
+                            const trendingTracks = await helper.getTrendingTracks();
+                            const trendingArtists = await helper.getTrendingArtists();
+                            const trendingPlaylists = await helper.getPlaylists();
+                            showArtistDetailSection(artistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
+                        }
                     } catch (error) {
                         toastSnackbar(error);
                     }
                 })
                 item.addEventListener('contextmenu', (event) => {
                     event.preventDefault();
-                    contextMenu.classList.toggle("active");
+                    if(contextMenu.classList.contains("active")){
+                        contextMenu.classList.remove("active");
+                    } else {
+                        allContextMenus.forEach(item => {
+                            item.classList.remove("active");
+                        })
+                        contextMenu.classList.add("active");
+                    }
                 });
             }
             if(contextmenuUnfollow){
@@ -805,18 +830,28 @@ function showMyPlaylistsElements(myPlaylist, myFollowedArtists, myFollowedPlayli
             if(item){
                 item.addEventListener("click",  async function(){
                     try {
-                        const trendingTracks = await helper.getTrendingTracks();
-                        const trendingArtists = await helper.getTrendingArtists();
-                        const trendingPlaylists = await helper.getPlaylists();
-                        contextMenu.classList.remove("active");
-                        showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
+                        if(contextMenu.classList.contains("active")){
+                            contextMenu.classList.remove("active");
+                        } else {
+                            const trendingTracks = await helper.getTrendingTracks();
+                            const trendingArtists = await helper.getTrendingArtists();
+                            const trendingPlaylists = await helper.getPlaylists();
+                            showPlaylistDetailSection(playlistID, trendingTracks.tracks, trendingArtists.artists, trendingPlaylists.playlists);
+                        }
                     } catch (error) {
                         toastSnackbar(error);
                     }
                 })
                 item.addEventListener('contextmenu', (event) => {
                     event.preventDefault();
-                    contextMenu.classList.toggle("active");
+                    if(contextMenu.classList.contains("active")){
+                        contextMenu.classList.remove("active");
+                    } else {
+                        allContextMenus.forEach(item => {
+                            item.classList.remove("active");
+                        })
+                        contextMenu.classList.add("active");
+                    }
                 });
             }
             if(contextmenuUnfollow){
@@ -1035,6 +1070,9 @@ function showEditPlaylistDetailForm(playlist){
 }
 
 async function setArrangeOptions(){
+    const sortRecently = $$$("recently-added");
+    const sortAlphabetical = $$$("alphabetical");
+    const allPlaylistViewasItem = await $$(".playlist-viewas-item");
     const sortDefaultList = await $(".playlist-viewas-item.default-list");
     const sortDefaultGrid = await $(".playlist-viewas-item.default-grid");
     const sortCompactList = await $(".playlist-viewas-item.compact-list");
@@ -1043,12 +1081,17 @@ async function setArrangeOptions(){
     const libraryContent = $(".library-content");
     const libraryContentItems = await $$(".library-item");
     const libraryContentItemImg = await $$(".item-image");
-    const libraryContentItemIcon = await $(".item-icon");
+    const libraryContentItemIcon = await $(".item-icon.liked-songs");
     const libraryContentItemInfo = await $$(".item-info");
     const libraryContentItemTitle = await $$(".item-title");
     const libraryContentItemSubtitle = await $$(".item-subtitle");
 
     sortCompactList.addEventListener("click", function(){
+        allPlaylistViewasItem.forEach(item => {
+            item.classList.remove("active");
+        })
+        sortCompactList.classList.add("active");
+
         libraryContent.style.display = "flex";
         libraryContent.style.gridTemplateColumns = "none";
         libraryContentItems.forEach(item => {
@@ -1066,9 +1109,16 @@ async function setArrangeOptions(){
         libraryContentItemSubtitle.forEach(item => {
             item.className = "item-subtitle compact-list";
         })
-        libraryContentItemIcon.className = "item-icon compact-list";
+        libraryContentItemIcon.className = "item-icon liked-songs compact-list";
+        sortRecently.classList.remove("active");
+        sortAlphabetical.classList.remove("active");
     })
     sortDefaultList.addEventListener("click", function(){
+        allPlaylistViewasItem.forEach(item => {
+            item.classList.remove("active");
+        })
+        sortDefaultList.classList.add("active");
+
         libraryContent.style.display = "flex";
         libraryContent.style.gridTemplateColumns = "none";
         libraryContentItems.forEach(item => {
@@ -1086,11 +1136,18 @@ async function setArrangeOptions(){
         libraryContentItemSubtitle.forEach(item => {
             item.className = "item-subtitle default-list"
         })
-        libraryContentItemIcon.className = "item-icon default-list";
+        libraryContentItemIcon.className = "item-icon liked-songs default-list";
+        sortRecently.classList.remove("active");
+        sortAlphabetical.classList.remove("active");
     })
     sortCompactGrid.addEventListener("click", function(){
+        allPlaylistViewasItem.forEach(item => {
+            item.classList.remove("active");
+        })
+        sortCompactGrid.classList.add("active");
+
         libraryContent.style.display = "grid";
-        libraryContent.style.gridTemplateColumns = "1fr 1fr";
+        libraryContent.style.gridTemplateColumns = "minmax(0, 1fr) minmax(0, 1fr)";
         libraryContentItems.forEach(item => {
             item.className = "library-item compact-grid"
         })
@@ -1107,10 +1164,17 @@ async function setArrangeOptions(){
             item.className = "item-subtitle compact-grid"
         })
         libraryContentItemIcon.className = "item-icon compact-grid";
+        sortRecently.classList.remove("active");
+        sortAlphabetical.classList.remove("active");
     })
     sortDefaultGrid.addEventListener("click", function(){
+        allPlaylistViewasItem.forEach(item => {
+            item.classList.remove("active");
+        })
+        sortDefaultGrid.classList.add("active");
+
         libraryContent.style.display = "grid";
-        libraryContent.style.gridTemplateColumns = "1fr 1fr";
+        libraryContent.style.gridTemplateColumns = "minmax(0, 1fr) minmax(0, 1fr)";
         libraryContentItems.forEach(item => {
             item.className = "library-item default-grid"
         })
@@ -1126,27 +1190,38 @@ async function setArrangeOptions(){
         libraryContentItemSubtitle.forEach(item => {
             item.className = "item-subtitle default-grid"
         })
-        libraryContentItemIcon.className = "item-icon default-grid";
+        libraryContentItemIcon.className = "item-icon liked-songs default-grid";
+        sortRecently.classList.remove("active");
+        sortAlphabetical.classList.remove("active");
     })
 }
 
 async function setFilterOptions(myPlaylists, myFollowedArtists, myFollowedPlaylist){
-    $$$("recently-added").addEventListener("click", function(){
+    const sortRecently = $$$("recently-added");
+    const sortAlphabetical = $$$("alphabetical");
+
+   sortRecently.addEventListener("click", function(){
         myPlaylists.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         myFollowedArtists.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         myFollowedPlaylist.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
         const libraryContent = $(".library-content");
         libraryContent.style.display = "flex";
         showMyPlaylistsElements(myPlaylists, myFollowedArtists, myFollowedPlaylist)
+
+        sortRecently.classList.add("active");
+        sortAlphabetical.classList.remove("active");
         $(".sort-options").classList.remove("active");
     })
-    $$$("alphabetical").addEventListener("click", function(){
+    sortAlphabetical.addEventListener("click", function(){
         myPlaylists.sort((a, b) => a.name.localeCompare(b.name));
         myFollowedArtists.sort((a, b) => a.name.localeCompare(b.name));
         myFollowedPlaylist.sort((a, b) => a.name.localeCompare(b.name));
         const libraryContent = $(".library-content");
         libraryContent.style.display = "flex";
         showMyPlaylistsElements(myPlaylists, myFollowedArtists, myFollowedPlaylist)
+
+        sortRecently.classList.remove("active");
+        sortAlphabetical.classList.add("active");
         $(".sort-options").classList.remove("active");
     })
 }
@@ -1601,6 +1676,7 @@ async function updatePlayer(track, isPlayed = true){
                         </div>
                         <button class="add-btn" data-track-id="${track.id}">
                             <i class="fa-solid fa-plus"></i>
+                            <span class="add-btn-tooltip">Add track</span>
                             <ul class="add-track-options">
                                 ${ isInclude
                                     ?'<li class="remove-to-liked">Remove to Liked tracks</li>'
@@ -1638,9 +1714,11 @@ async function updatePlayer(track, isPlayed = true){
                         </div>
                         <div class="progress-container">
                             <span class="time current-time-played">00:00</span>
-                            <input type="range" min="0" max="100" value="0" id="progress-track-fill" class="range-input" />
+                            <div class="time-seek-container">
+                                <input type="range" min="0" max="100" value="0" id="progress-track-fill" class="range-input" />
+                                <span class="time-seek"></span>
+                            </div>
                             <span class="time">${time}</span>
-                            <span class="time-seek"></span>
                         </div>
                     </div>
                     
@@ -1651,6 +1729,7 @@ async function updatePlayer(track, isPlayed = true){
                         <div class="volume-container">
                             <button class="control-btn volumne-btn">
                                 <i class="fas fa-volume-down"></i>
+                                <div class="control-btn-tooltip">Volumne</div>
                             </button>
                             <input type="range" min="0" max="100" value="100" id="volume-track-fill" class="range-input" />
                         </div>
@@ -1697,17 +1776,17 @@ async function audioController(track, audio, isPlayed){
     })
     const playBtn = $(".control-btn.play-btn");
     if(audio.paused){
-        playBtn.innerHTML = '<i class="fas fa-play"></i>'
+        playBtn.innerHTML = '<i class="fas fa-play"></i><div class="control-btn-tooltip">Play</div>'
     } else {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>'
+        playBtn.innerHTML = '<i class="fas fa-pause"></i><div class="control-btn-tooltip">Play</div>'
     }
     playBtn.addEventListener("click", function(){
         if(audio.paused){
             audio.play();
-            this.innerHTML = '<i class="fas fa-pause"></i>'
+            this.innerHTML = '<i class="fas fa-pause"></i><div class="control-btn-tooltip">Play</div>'
         } else {
             audio.pause();
-            this.innerHTML = '<i class="fas fa-play"></i>'
+            this.innerHTML = '<i class="fas fa-play"></i><div class="control-btn-tooltip">Play</div>'
         }
     })
     const volumeBtn = $(".volumne-btn");
@@ -1986,16 +2065,22 @@ function showSeeking(progressBar, timeSeek){
         const elementWidth = e.target.offsetWidth;
         const rect = e.target.getBoundingClientRect();
         let currentPosition = e.clientX - rect.left;
-        let percentage = currentPosition / elementWidth * 100;
-        let currentSeeking = percentage * stateHolder.currentAudio.duration /100
-        if(currentSeeking <= 0) currentSeeking = 0;
-        if(currentSeeking >= stateHolder.currentAudio.duration) currentSeeking = stateHolder.currentAudio.duration;
+        let percentage = Math.round(currentPosition / elementWidth * 100);
+        let currentSeeking = percentage * stateHolder.currentAudio.duration /100;
+        if(currentSeeking < 0) {
+            currentSeeking = 0;
+            timeSeek.style.left = `0px`;
+        } else if(currentSeeking > stateHolder.currentAudio.duration) {
+            currentSeeking = stateHolder.currentAudio.duration;
+            timeSeek.style.left = `${elementWidth}px`;
+        } else {
+            timeSeek.style.left = `${currentPosition}px`;
+        }
         const min = Math.floor(currentSeeking / 60).toString().padStart(2, '0');
         const sec = Math.floor(currentSeeking % 60).toString().padStart(2, '0');
         timeSeek.textContent = `${min}:${sec}`;
         timeSeek.style.visibility = "visible";
         timeSeek.style.opacity = "1";
-        timeSeek.style.left = `${currentPosition + 30}px`;
         progressBar.style.setProperty('--afterBack', `${percentage}%`)
 
     });
@@ -2011,7 +2096,7 @@ export function manipulateKeyUp(event, volume){
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>'
             } else {
                 stateHolder.currentAudio.pause();
-                playBtn.innerHTML = '<i class="fas fa-play"></i>'
+                playBtn.innerHTML = '<i class="fas fa-play"></i><div class="control-btn-tooltip">Play</div>'
             }
             break;
         case 'ArrowUp':

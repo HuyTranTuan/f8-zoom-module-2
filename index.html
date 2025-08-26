@@ -33,6 +33,7 @@
                         <button class="create-btn">
                             <i class="fas fa-plus"></i>
                             Create
+                            <span class="create-btn-tooltip">Create new playlist</span>
                         </button>
                     </div>
 
@@ -59,17 +60,21 @@
                                 </ul>
                                 <span>View as</span>
                                 <ul class="playlist-viewas">
+                                    <li class="playlist-viewas-item default-list active">
+                                        <i class="fa-solid fa-list"></i>
+                                        <span class="playlist-viewas-item-tooltip">Default List</span>
+                                    </li>
                                     <li class="playlist-viewas-item compact-list">
                                         <i class="fa-solid fa-bars"></i>
-                                    </li>
-                                    <li class="playlist-viewas-item default-list">
-                                        <i class="fa-solid fa-list"></i>
-                                    </li>
-                                    <li class="playlist-viewas-item compact-grid">
-                                        <i class="fa-solid fa-table-cells"></i>
+                                        <span class="playlist-viewas-item-tooltip">Compact List</span>
                                     </li>
                                     <li class="playlist-viewas-item default-grid">
                                         <i class="fa-solid fa-table-cells-large"></i>
+                                        <span class="playlist-viewas-item-tooltip">Default Grid</span>
+                                    </li>
+                                    <li class="playlist-viewas-item compact-grid">
+                                        <i class="fa-solid fa-table-cells"></i>
+                                        <span class="playlist-viewas-item-tooltip">Compact Grid</span>
                                     </li>
                                 </ul>
                             </div>
@@ -126,9 +131,11 @@
                         <div class="search-box">
                             <button class="home-btn">
                                 <i class="fas fa-home"></i>
+                                <span class="home-btn-tooltip">Home page</span>
                             </button>
                             <div class="search-input-wrapper">
                                 <i class="fas fa-search search-icon"></i>
+                                <span class="search-input-wrapper-tooltip">Search whatever you want</span>
                                 <input
                                     type="text"
                                     placeholder="What do you want to play?"
@@ -144,6 +151,7 @@
                         </div>
                         <div class="user-menu">
                             <button class="user-avatar" id="userAvatar">
+                                <span class="user-menu-tooltip">Profile</span>
                                 <img
                                     src="placeholder.svg?height=32&width=32"
                                     alt="User Avatar"
@@ -563,7 +571,7 @@
                         <form class="auth-form-content">
 
                             <div class="form-group">
-                                <input type="text" placeholder="Username" class="form-input" id="signupUsername" />
+                                <input type="text" placeholder="Username" class="form-input" id="signupUsername" autofocus/>
                                 <div class="error-message">
                                     <i class="fas fa-info-circle"></i>
                                     <span>Please enter a valid username</span>
@@ -652,6 +660,7 @@
                                     placeholder="Email address"
                                     class="form-input"
                                     id="loginEmail"
+                                    autofocus="true"
                                 />
                                 <div class="error-message">
                                     <i class="fas fa-info-circle"></i>

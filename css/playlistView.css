@@ -156,7 +156,7 @@
 /* default-grid */
 .library-item.default-grid {
   padding: 5px;
-  width: 85%;
+  width: 100%;
 }
 .item-image.default-grid,
 .item-icon.default-grid {

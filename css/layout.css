@@ -220,12 +220,16 @@
   align-items: center;
   gap: var(--spacing-md);
   width: 100%;
+}
+.time-seek-container {
   position: relative;
+  width: 100%;
 }
 .time-seek {
-  width: 50px;
+  padding: 5px;
   height: 30px;
   top: -35px;
+  transform: translateX(-50%);
   background-color: #424242;
   border-radius: 5px;
   position: absolute;
